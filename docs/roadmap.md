@@ -7,7 +7,7 @@
 - 适配器：mock + OpenAI-compatible
 - 单测：切句、候选词、入库、查词、复习、导出
 
-## v0.2 语境卡质量（当前）
+## v0.2 语境卡质量
 
 - 切句处理缩写（Mr./Dr./e.g.）、小数、引号、省略号；
 - 适配器输出校验：缺 `sense`、置信度非数字、非法状态直接拒收；
@@ -22,13 +22,14 @@
 make test
 ```
 
-## v0.3 本地 Web
+## v0.3 本地 Web（当前）
 
-- FastAPI + 单页前端；
+- 使用 Python 标准库 `http.server`，不额外引入 FastAPI/前端构建；
 - 阅读视图：左原文、右卡片；
 - 点词弹卡，支持键盘上下句；
-- 校对视图：draft → reviewed；
-- 数据仍在本地 `data/`。
+- 校对视图：draft → reviewed / retired；
+- 数据仍在本地 `data/`，与 CLI 共用同一份 JSONL；
+- 12 个单测，覆盖页面、API 与状态写回。
 
 验收：不装数据库也能打开；所有操作离线可用；导出的 JSON 与 CLI 一致。
 

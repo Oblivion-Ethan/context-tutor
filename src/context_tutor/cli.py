@@ -69,6 +69,11 @@ def build_parser() -> argparse.ArgumentParser:
     export = sub.add_parser("export", help="导出完整 JSON")
     export.add_argument("--out", default="exports/library.json")
 
+    serve = sub.add_parser("serve", help="启动本地阅读界面（阅读 + 点词查语境 + 校对）")
+    serve.add_argument("--host", default="127.0.0.1", help="监听地址，默认只允许本机")
+    serve.add_argument("--port", type=int, default=8765, help="端口，默认 8765")
+    serve.add_argument("--no-open", action="store_true", help="不要自动打开浏览器")
+
     return parser
 
 
@@ -177,6 +182,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "export":
         path = library.export(args.out)
         print(f"已导出：{path.resolve()}")
+        return 0
+
+    if args.command == "serve":
+        from .web import serve
+
+        serve(
+            library,
+            host=args.host,
+            port=args.port,
+            open_browser=not args.no_open,
+        )
         return 0
 
     parser.print_help()

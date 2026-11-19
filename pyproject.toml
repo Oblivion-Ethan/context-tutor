@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "context-tutor"
-version = "0.2.0"
+version = "0.3.0"
 description = "A local-first, context-first English learning assistant for weak learners."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,3 +20,6 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+context_tutor = ["web/*.html"]

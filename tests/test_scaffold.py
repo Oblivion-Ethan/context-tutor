@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
 import tempfile
+import threading
 import unittest
+import urllib.request
 from pathlib import Path
 
 from context_tutor.adapters.mock import MockAdapter
@@ -9,6 +12,7 @@ from context_tutor.adapters.validate import normalize_analysis
 from context_tutor.english.candidates import rank_candidates
 from context_tutor.english.segment import split_paragraphs, split_sentences
 from context_tutor.library import Library
+from context_tutor.web import create_server
 
 
 class SegmentTests(unittest.TestCase):
@@ -120,6 +124,70 @@ class LibraryTests(unittest.TestCase):
 
         _, errors = normalize_analysis({"sense": "适配器调用失败：timeout", "confidence": 0})
         self.assertIn("adapter error", errors)
+
+
+class WebAppTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.library = Library(Path(self.temp.name))
+        self.library.ingest_text(
+            "Context is not decoration; it is instruction. "
+            "A word without context is only a dictionary entry.",
+            title="Web Demo",
+            kind="article",
+        )
+        self.library.enrich(MockAdapter())
+        self.server = create_server(self.library, host="127.0.0.1", port=0)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_address[1]}"
+
+    def tearDown(self) -> None:
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+        self.temp.cleanup()
+
+    def request(self, path: str, payload: dict | None = None) -> tuple[int, dict]:
+        data = None
+        headers = {}
+        if payload is not None:
+            data = json.dumps(payload).encode("utf-8")
+            headers["Content-Type"] = "application/json"
+        request = urllib.request.Request(self.base + path, data=data, headers=headers)
+        with urllib.request.urlopen(request, timeout=5) as response:
+            return response.status, json.loads(response.read().decode("utf-8"))
+
+    def test_index_and_read_api(self) -> None:
+        with urllib.request.urlopen(self.base + "/", timeout=5) as response:
+            body = response.read().decode("utf-8")
+            self.assertEqual(response.status, 200)
+            self.assertIn("text/html", response.headers["Content-Type"])
+            self.assertIn("ContextTutor", body)
+
+        status, overview = self.request("/api/overview")
+        self.assertEqual(status, 200)
+        self.assertEqual(len(overview["sources"]), 1)
+        source_id = overview["sources"][0]["id"]
+
+        _, source = self.request(f"/api/source?id={source_id}")
+        self.assertEqual(source["source"]["title"], "Web Demo")
+        self.assertGreaterEqual(len(source["sentences"]), 2)
+        self.assertTrue(any(sentence["context_cards"] for sentence in source["sentences"]))
+
+        _, lookup = self.request("/api/lookup?word=context")
+        self.assertEqual(lookup["word"], "context")
+        self.assertTrue(lookup["contexts"])
+        self.assertTrue(lookup["sentences"])
+
+    def test_status_update_api(self) -> None:
+        card = self.library.store.read("contexts")[0]
+        status, payload = self.request(
+            f"/api/cards/{card['id']}/status", {"status": "reviewed"}
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(payload["card"]["status"], "reviewed")
+        self.assertGreaterEqual(payload["stats"]["reviewed_context_cards"], 1)
 
 
 if __name__ == "__main__":

@@ -25,9 +25,10 @@
 - `promote`：人工把语境卡标为 `reviewed` 或 `retired`，不静默覆盖。
 - `lookup`：按词查语境卡和所在句子；默认隐藏已退役卡。
 - `review`：生成填空复习卡。
+- `serve`：启动本地阅读界面，点词看语境义、上下句切换、在校对视图里处理草稿。
 - `stats` / `export`：查看库统计，导出完整 JSON。
 
-现在**不**做：PDF/OCR 整本解析、Web UI、账号系统、自动排课、保证翻译正确。这些在路线图里，不在 scaffold 里假装完成。
+现在**不**做：PDF/OCR 整本解析、账号系统、云同步、自动排课、保证翻译正确。这些在路线图里，不在 scaffold 里假装完成。
 
 ## 快速开始
 
@@ -44,7 +45,10 @@ context-tutor --data-dir data --profile profiles/english_weak.json enrich --adap
 context-tutor --data-dir data --profile profiles/english_weak.json lookup context
 context-tutor --data-dir data --profile profiles/english_weak.json promote <card_id>
 context-tutor --data-dir data --profile profiles/english_weak.json review --limit 3 --show-answer
+context-tutor --data-dir data --profile profiles/english_weak.json serve
 ```
+
+`serve` 会在 `http://127.0.0.1:8765/` 打开本地阅读界面。不想自动开浏览器就加 `--no-open`，换端口用 `--port 8877`。界面只读本机 `data/`，不发起外部请求。
 
 `mock` 适配器只写占位义，`status=draft`，用来验证流程；真实语境义要接下面的适配器。
 
@@ -68,6 +72,22 @@ context-tutor --data-dir data --profile profiles/english_weak.json enrich --adap
 
 适配器只发送当前句子和候选词，不发送整库；返回的卡仍然是 `draft`，需要你抽查后再改成 `reviewed`。
 
+## 本地阅读界面
+
+```bash
+context-tutor --data-dir data --profile profiles/english_weak.json serve
+```
+
+打开后：
+
+- 左栏按来源列文章，正文按句子排；
+- 候选词有虚线下划线，点任意英文词都能查这句里的语境义；
+- 右侧显示句子主干、修饰、候选词和对应语境卡；
+- `↑ / ↓` 切上一句/下一句，`Esc` 收起当前词；
+- 顶部「校对」视图只列 `draft`，可以一张张标为 `reviewed` 或 `retired`。
+
+实现只用 Python 标准库 `http.server` 和单页 HTML，不装数据库、不装前端框架；接口读写仍是 `data/*.jsonl`，和 CLI 完全同一份数据。
+
 ## 架构
 
 ```text
@@ -83,7 +103,10 @@ context-tutor --data-dir data --profile profiles/english_weak.json enrich --adap
 本地 JSONL 库 ──► lookup / review / export
    │
    ▼
-（后续）Web UI / PDF 入库 / 间隔复习
+本地 Web（serve：阅读 / 点词 / 校对）
+   │
+   ▼
+（后续）PDF 入库 / 间隔复习
 ```
 
 ### 四层数据
@@ -138,8 +161,8 @@ context-tutor --data-dir data --profile profiles/english_weak.json enrich --adap
 ## 路线图
 
 - **v0.1**：CLI + JSONL + mock/OpenAI-compatible 适配器 + 6 个单测。
-- **v0.2（当前）**：切句处理缩写/小数/引号；适配器输出 schema 校验，坏卡拒收；`promote` 人工校对；`--replace-drafts` 避免 mock 草稿挡住真适配器；10 个单测。
-- **v0.3**：本地 Web UI（FastAPI + 单页前端），阅读视图 + 点击查词。
+- **v0.2**：切句处理缩写/小数/引号；适配器输出 schema 校验，坏卡拒收；`promote` 人工校对；`--replace-drafts` 避免 mock 草稿挡住真适配器；10 个单测。
+- **v0.3（当前）**：本地阅读界面（标准库 `http.server` + 单页 HTML，无额外依赖）：阅读视图、点词查语境、上下句切换、draft → reviewed 校对；12 个单测。
 - **v0.4**：PDF/EPUB 入库，带页码锚点；表格/图注单独标记。
 - **v0.5**：间隔复习、错词诊断、学习画像。
 - **v1.0**：CET-4/考研/雅思等 profile 包，可替换词表与评分标准。

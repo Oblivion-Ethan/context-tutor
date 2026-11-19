@@ -28,6 +28,8 @@ ContextTutor 的核心不是“回答一个问题”，而是把阅读资料变�
 ```text
 src/context_tutor/
   cli.py              # 命令行入口
+  web.py              # 本地 HTTP 服务和 JSON API
+  web/index.html      # 单页阅读/校对界面
   library.py          # 入库、查词、复习、导出
   storage.py          # JSONL 追加/读取
   models.py           # Source / SentenceCard / ContextCard
@@ -52,6 +54,8 @@ text
   → ContextCard（语境义 + 依据 + 搭配 + 语域 + 例句 + 置信度）
   → JSONL 库
   → lookup / review / export
+  → web.py：/api/overview · /api/source · /api/lookup · /api/review · /api/cards/<id>/status
+  → web/index.html：阅读、点词、校对
 ```
 
 ## 5. 适配器契约
@@ -86,7 +90,7 @@ translate_sentence(sentence) -> str | None
 `reviewed`：人工对照原句/原文后确认，可以当权威。
 `retired`：被新卡替代，保留历史。
 
-当前 CLI 用 `promote <card_id> --status reviewed|retired` 做人工校对；`enrich --replace-drafts` 会先把旧草稿退役，避免 mock 草稿挡住真适配器。v0.3 再加 Web 校对视图。
+当前 CLI 用 `promote <card_id> --status reviewed|retired` 做人工校对；`enrich --replace-drafts` 会先把旧草稿退役，避免 mock 草稿挡住真适配器。v0.3 的 `serve` 提供同一套状态操作的 Web 校对视图，写回同一份 JSONL。
 
 ## 7. 掌握循环（预留，不在 v0.1 实现）
 
@@ -114,7 +118,7 @@ translate_sentence(sentence) -> str | None
 - 主干/修饰是粗提示，不是句法树；
 - 候选词是频率+长度启发式，不是个性化难度模型；
 - 没有 PDF/OCR；
-- 没有 Web；
+- Web 是单用户本地阅读界面，不是账号系统、云同步或协作产品；
 - 没有间隔复习调度器；
 - 适配器输出没有自动事实校验，需要人工抽查。
 
