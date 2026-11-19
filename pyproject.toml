@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "context-tutor"
+version = "0.2.0"
+description = "A local-first, context-first English learning assistant for weak learners."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "ContextTutor contributors" }]
+dependencies = []
+
+[project.scripts]
+context-tutor = "context_tutor.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

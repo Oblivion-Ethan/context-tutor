@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Source",
+  "type": "object",
+  "required": ["id", "title", "kind", "sha256"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "kind": {"type": "string", "enum": ["article", "textbook", "paper", "notes", "other"]},
+    "path": {"type": "string"},
+    "author": {"type": "string"},
+    "edition": {"type": "string"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "created_at": {"type": "string"},
+    "status": {"type": "string"}
+  }
+}

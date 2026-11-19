@@ -1,0 +1,12 @@
+# Data and local environment
+data/
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
+dist/
+build/
+*.egg-info/
+.env

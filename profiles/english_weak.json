@@ -1,0 +1,10 @@
+{
+  "name": "english_weak",
+  "target": "英语薄弱自学者",
+  "translation_language": "zh-CN",
+  "context_first": true,
+  "show_grammar_first": false,
+  "max_candidate_words_per_sentence": 3,
+  "min_word_length": 4,
+  "known_words": []
+}

@@ -1,0 +1,13 @@
+ContextTutor / 语境英语
+
+This project is an independent implementation. Its design was informed by
+engineering principles observed in the DeepTutor project, including source
+manifests, source anchoring, staged ingestion, low-confidence review, and
+index versioning. No DeepTutor source code is copied into this repository.
+
+DeepTutor is licensed under the Apache License, Version 2.0:
+https://github.com/HKUDS/DeepTutor (see its repository for the current
+copyright notices and license terms).
+
+All original code in this repository is licensed under the Apache License,
+Version 2.0. See LICENSE.

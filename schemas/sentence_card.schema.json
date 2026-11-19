@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SentenceCard",
+  "type": "object",
+  "required": ["id", "source_id", "text", "main_clause", "candidate_words"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "text": {"type": "string", "minLength": 1},
+    "paragraph_index": {"type": "integer", "minimum": 0},
+    "sentence_index": {"type": "integer", "minimum": 0},
+    "main_clause": {"type": "string"},
+    "modifiers": {"type": "array", "items": {"type": "string"}},
+    "candidate_words": {"type": "array", "items": {"type": "string"}, "maxItems": 5},
+    "translation": {"type": ["string", "null"]},
+    "difficulty": {"type": "string", "enum": ["easy", "medium", "hard", "unrated"]},
+    "status": {"type": "string"},
+    "created_at": {"type": "string"}
+  }
+}

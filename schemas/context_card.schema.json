@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ContextCard",
+  "type": "object",
+  "required": ["id", "source_id", "sentence_id", "surface", "lemma", "sense", "confidence", "status"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "source_id": {"type": "string", "minLength": 1},
+    "sentence_id": {"type": "string", "minLength": 1},
+    "surface": {"type": "string", "minLength": 1},
+    "lemma": {"type": "string", "minLength": 1},
+    "sense": {"type": "string", "minLength": 1},
+    "why": {"type": "string"},
+    "collocations": {"type": "array", "items": {"type": "string"}},
+    "register": {"type": "string"},
+    "example": {"type": "string"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "status": {"type": "string", "enum": ["draft", "reviewed", "retired"]},
+    "adapter": {"type": "string"},
+    "created_at": {"type": "string"}
+  }
+}
