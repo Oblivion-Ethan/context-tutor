@@ -1,0 +1,23 @@
+name: Import source
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack archive
+        run: |
+          unzip -o context-tutor.zip -d /tmp/src
+          cp -R /tmp/src/context-tutor/. .
+          rm -rf /tmp/src context-tutor.zip
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "import context-tutor v0.2 source"
+          git push
